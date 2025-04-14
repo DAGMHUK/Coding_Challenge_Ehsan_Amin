@@ -11,45 +11,6 @@ def calculate_claim_frequency(learn_data, test_data):
     return None
 
 
-def plot_obs_pred(
-    df,
-    feature,
-    weight,
-    observed,
-    predicted,
-    y_label=None,
-    title=None,
-    ax=None,
-    fill_legend=False,
-):
-
-    # aggregate observed and predicted variables by feature level
-    df_ = df.loc[:, [feature, weight]].copy()
-    df_["observed"] = df[observed] * df[weight]
-    df_["predicted"] = predicted * df[weight]
-    df_ = (
-        df_.groupby([feature])[[weight, "observed", "predicted"]]
-        .sum()
-        .assign(observed=lambda x: x["observed"] / x[weight])
-        .assign(predicted=lambda x: x["predicted"] / x[weight])
-    )
-
-    ax = df_.loc[:, ["observed", "predicted"]].plot(style=".", ax=ax)
-    y_max = df_.loc[:, ["observed", "predicted"]].values.max() * 0.8
-    p2 = ax.fill_between(
-        df_.index,
-        0,
-        y_max * df_[weight] / df_[weight].values.max(),
-        color="g",
-        alpha=0.1,
-    )
-    if fill_legend:
-        ax.legend([p2], ["{} distribution".format(feature)])
-    ax.set(
-        ylabel=y_label if y_label is not None else None,
-        title=title if title is not None else "Train: Observed vs Predicted",
-    )
-
 def score_estimator(trained_model, X_train, X_test, df_train, df_test, target, weights):    
     metrics = [
         ("square R score", r2_score),  # Use default scorer if it exists

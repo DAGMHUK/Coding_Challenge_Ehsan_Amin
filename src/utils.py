@@ -11,7 +11,6 @@ def replace_birthdate_with_age(df, birthdate_column, reference_date):
     return df
 
 
-
 def plot_attribute_distribution(data, column_name):
     # Count occurrences of each value in the specified column
 
@@ -111,9 +110,6 @@ def load_data(file_path, engine='pyarrow'):
         print(f"An error occurred while reading the Parquet file: {e}")
         return None
 
-# Example usage:
-# df = explore_parquet("path/to/features.parquet")
-
 
 def plot_grouped_by_ClaimNb(data, frequeny_column, column_name, max = None):
     # Group by the specified column and calculate claim frequency
@@ -166,3 +162,36 @@ def merge_files(df1, df2, ID):
         df[column_name] = df[column_name].str.strip("'")
 
     return df
+
+def plot_boxplots(features, y_feature, data, ymax=None):
+    num_features = len(features)
+    num_cols = 2  # Number of columns in the subplot grid
+    num_rows = (num_features + num_cols - 1) // num_cols  # Calculate rows needed
+
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(15, 5 * num_rows))
+    axes = axes.flatten()  # Flatten the axes array for easy iteration
+
+    for i, feature in enumerate(features):
+        ax = axes[i]
+        sns.boxplot(x=feature, y=y_feature, data=data, ax=ax)
+        mean_value = data.groupby(feature)[y_feature].mean()
+        for j, mean in enumerate(mean_value):
+            ax.scatter(j, mean, color='green', label='Mean' if j == 0 else "", zorder=5)
+        if i == 0:  # Add legend only to the first subplot
+            ax.legend()
+        ax.set_title(f'Boxplot of {y_feature} by {feature}')
+        ax.set_xlabel(feature)
+        ax.set_ylabel(y_feature)
+        ax.tick_params(axis='x', rotation=45)
+
+        # Calculate ymax if not provided
+        if ymax is None:
+            calculated_ymax = 2 * data.groupby(feature)[y_feature].mean().mean()
+            ax.set_ylim(-.05, calculated_ymax)
+
+    # Hide any unused subplots
+    for j in range(i + 1, len(axes)):
+        fig.delaxes(axes[j])
+
+    plt.tight_layout()
+    plt.show()
