@@ -13,9 +13,10 @@ def calculate_claim_frequency(learn_data, test_data):
 
 def score_estimator(trained_model, X_train, X_test, df_train, df_test, target, weights):    
     metrics = [
-        ("square R score", r2_score),  # Use default scorer if it exists
         ("mean abs. error", mean_absolute_error),
+        ("R-squared score", r2_score),  # Use default scorer if it exists
         ("mean squared error", mean_squared_error),
+        
     ]
     res = []
     
